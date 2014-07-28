@@ -5,6 +5,7 @@ $script = <<SCRIPT
 set -x
 
 sudo bash -c 'echo LC_ALL="en_US.UTF-8" >> /etc/default/locale'
+sudo locale-gen en_US.UTF-8
 
 wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
 sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
@@ -16,6 +17,10 @@ sudo apt-get -q update
 sudo apt-get -y upgrade
 
 sudo apt-get -y install build-essential wget curl git-core jq
+
+# Timezone
+echo "Asia/Tokyo" | sudo tee /etc/timezone
+sudo dpkg-reconfigure --frontend noninteractive tzdata
 
 # Install Jenkins
 sudo useradd -u 45678 -g 65534 -m -d /var/lib/jenkins -s /bin/bash jenkins
@@ -42,15 +47,17 @@ sudo -u jenkins cp -R /vagrant/jobs/* /var/lib/jenkins/jobs/
 sudo service jenkins restart
 
 # Build Docker image
-sudo docker build -t jenkins-with-docker/nodejs /vagrant
+sudo docker build -t "jenkins_with_docker/nodejs" /vagrant
 SCRIPT
 
 Vagrant.configure('2') do |config|
   # $ vagrant plugin install --plugin-source https://rubygems.org/ --plugin-prerelease vagrant-vbguest
   config.vbguest.auto_update = true
 
-  config.vm.box = 'saucy64'
-  config.vm.box_url = 'http://cloud-images.ubuntu.com/vagrant/saucy/current/saucy-server-cloudimg-amd64-vagrant-disk1.box'
+  #config.vm.box = 'saucy64'
+  #config.vm.box_url = 'http://cloud-images.ubuntu.com/vagrant/saucy/current/saucy-server-cloudimg-amd64-vagrant-disk1.box'
+  config.vm.box = 'trusty64'
+  config.vm.box_url = 'https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box'
 
   config.vm.network :forwarded_port, guest: 8080, host:8888
 

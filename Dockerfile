@@ -1,4 +1,4 @@
-FROM ubuntu:12.04
+FROM ubuntu:14.04
 MAINTAINER Kazuki Suda <kazuki.suda@gmail.com>
 
 RUN apt-get -q update; apt-get -y upgrade
